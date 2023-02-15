@@ -50,3 +50,34 @@ specified in the logging-configurators setup.py. This might not work if you plan
 * Polygons, Shapes and Points with x, y Coordinates
     * [Map polygons to tiles w/ Geopandas and Shapely](https://www.matecdev.com/posts/point-in-polygon.html)
     * Use [Shapely](https://github.com/shapely/shapely) for general Geometry data stuff (Points, Polygons, Path-Extrusion, ..)
+    
+## Examples (mostly created with chatgpt and unchecked)
+
+* pyrosm download data and extract certain aspects into geodataframe format
+```python
+import pyrosm
+
+# create a Pyrosm object
+pyrosm_data = pyrosm.OSM("data.osm.pbf")
+
+# specify the bounding box coordinates
+north, south, east, west = 52.53, 52.5, 13.4, 13.37
+
+# download the OpenStreetMap data for the bounding box
+pyrosm_data.download_pbf(
+    filepath="data.osm.pbf",
+    north=north, south=south, east=east, west=west
+)
+
+# extract the roads, buildings, water bodies, and green spaces as GeoDataFrames
+roads_gdf = pyrosm_data.get_network(as_gdf=True)
+buildings_gdf = pyrosm_data.get_buildings(as_gdf=True)
+water_gdf = pyrosm_data.get_pois("natural", "water", as_gdf=True)
+green_gdf = pyrosm_data.get_pois("leisure", ["park", "garden"], as_gdf=True)
+
+# view the resulting GeoDataFrames
+print(roads_gdf.head())
+print(buildings_gdf.head())
+print(water_gdf.head())
+print(green_gdf.head())
+```
