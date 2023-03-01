@@ -47,6 +47,7 @@ specified in the logging-configurators setup.py. This might not work if you plan
     * [Tuxemon - open source tiles and pokemon](https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/gfx/tilesets)
     * [Building outlines in Africa](https://sites.research.google/open-buildings/)
     * [CAD-Files for Building 3D outlines](https://cadmapper.com/) BUT: Not fully open source! Building outlines for large cities can be obtained for free though
+    * [Building 3D geometry generator Buildify for Blender](https://paveloliva.gumroad.com/l/buildify)
 * Polygons, Shapes and Points with x, y Coordinates
     * [Map polygons to tiles w/ Geopandas and Shapely](https://www.matecdev.com/posts/point-in-polygon.html)
     * Use [Shapely](https://github.com/shapely/shapely) for general Geometry data stuff (Points, Polygons, Path-Extrusion, ..)
