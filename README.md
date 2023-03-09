@@ -51,6 +51,9 @@ specified in the logging-configurators setup.py. This might not work if you plan
 * Polygons, Shapes and Points with x, y Coordinates
     * [Map polygons to tiles w/ Geopandas and Shapely](https://www.matecdev.com/posts/point-in-polygon.html)
     * Use [Shapely](https://github.com/shapely/shapely) for general Geometry data stuff (Points, Polygons, Path-Extrusion, ..)
+* Inspiration
+    * [Moonstone Island](https://store.steampowered.com/app/1658150/Moonstone_Island/)
+    * [TemTem](https://store.steampowered.com/app/745920/Temtem/)
     
 ## Examples (mostly created with chatgpt and unchecked)
 
