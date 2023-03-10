@@ -54,6 +54,9 @@ specified in the logging-configurators setup.py. This might not work if you plan
 * Inspiration
     * [Moonstone Island](https://store.steampowered.com/app/1658150/Moonstone_Island/)
     * [TemTem](https://store.steampowered.com/app/745920/Temtem/)
+* Procedural generation
+    * [Wave Function Collapse](https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/)
+    * [Perlin Noise](https://spin.atomicobject.com/2015/05/03/infinite-procedurally-generated-world/)
     
 ## Examples (mostly created with chatgpt and unchecked)
 
