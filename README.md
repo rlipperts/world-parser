@@ -88,3 +88,56 @@ print(buildings_gdf.head())
 print(water_gdf.head())
 print(green_gdf.head())
 ```
+
+* download data with pyrosm and store in PostGIS database
+
+```python
+import pyrosm
+import psycopg2
+
+# Connect to PostGIS database
+conn = psycopg2.connect(database="my_database", user="my_user", password="my_password", host="localhost", port="5432")
+
+# Create Pyrosm parser object
+parser = pyrosm.OsmParser()
+
+# Download OSM data for a bounding box and write it to the PostGIS database
+bbox = (xmin, ymin, xmax, ymax)
+parser.download_and_parse(bbox, filepath="", db_conn=conn, db_schema="public", db_name="my_database", db_user="my_user", db_password="my_password", db_host="localhost", db_port="5432")
+```
+
+* query a postgis database for certain datapoints
+```python
+import psycopg2
+import geopandas as gpd
+
+# Connect to PostGIS database
+conn = psycopg2.connect(database="my_database", user="my_user", password="my_password", host="localhost", port="5432")
+
+# Define the bounding box of the area to query
+xmin, ymin, xmax, ymax = 8.3719, 51.8963, 8.6752, 52.0902
+
+# Define the OSM tags to query for
+building_tags = ['building']
+road_tags = ['highway']
+tree_tags = ['natural', 'landuse']
+leisure_tags = ['leisure']
+forest_tags = ['landuse', 'natural']
+water_tags = ['water', 'waterway']
+
+# Define the SQL query for each tag
+building_query = f"SELECT osm_id, way, building FROM planet_osm_polygon WHERE building IN {tuple(building_tags)} AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
+road_query = f"SELECT osm_id, way, highway FROM planet_osm_line WHERE highway IN {tuple(road_tags)} AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
+tree_query = f"SELECT osm_id, way, COALESCE(natural, landuse) AS type FROM planet_osm_polygon WHERE (natural IN {tuple(tree_tags)} OR landuse IN {tuple(tree_tags)}) AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
+leisure_query = f"SELECT osm_id, way, leisure FROM planet_osm_polygon WHERE leisure IN {tuple(leisure_tags)} AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
+forest_query = f"SELECT osm_id, way, COALESCE(natural, landuse) AS type FROM planet_osm_polygon WHERE (natural IN {tuple(forest_tags)} OR landuse IN {tuple(forest_tags)}) AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
+water_query = f"SELECT osm_id, way, COALESCE(water, waterway) AS type FROM planet_osm_polygon WHERE (water IN {tuple(water_tags)} OR waterway IN {tuple(water_tags)}) AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
+
+# Execute the SQL queries and load the results into GeoDataFrames
+buildings_gdf = gpd.read_postgis(building_query, conn, geom_col='way')
+roads_gdf = gpd.read_postgis(road_query, conn, geom_col='way')
+trees_gdf = gpd.read_postgis(tree_query, conn, geom_col='way')
+leisure_gdf = gpd.read_postgis(leisure_query, conn, geom_col='way')
+forests_gdf = gpd.read_postgis(forest_query, conn, geom_col='way')
+water_gdf = gpd.read_postgis(water_query, conn, geom_col='way')
+``
