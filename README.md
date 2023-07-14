@@ -1,143 +1,81 @@
-# osm rasterize
-_Transform OSM environment data into a grid_
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/rlipperts.world-parser)
 
-## installation
-Currently no pipy release!
+# world-parser
 
-### manual
-For installation with pip directly from this GitHub repository simply open a terminal and type
-```
-pip install git+ssh://git@github.com/rlipperts/osm-rasterize.git
-``` 
+parses world data from different sources and provides an efficient and high-level interface to it
 
-### setup.py
-To automatically install the logging configurator with your python package include these lines in your setup.py
-```python
-install_requires = [
-    'world_parser @ git+ssh://git@github.com/rlipperts/world-parser.
-                       git@master#egg=world_parser-0.0.0',
-],
-```
-Make sure you update the version in the `egg=world_parser-...` portion to the correct version 
-specified in the logging-configurators setup.py. This might not work if you plan on publishing your package on PyPI.
+## Using
 
-## Overview
+To add and install this package as a dependency of your project, run `poetry add world-parser`.
 
-1. Spiellogik und -grafik
-2. Spielweltgenerierung
-3. __Echtwelt Datenaufarbeitung__
+## Contributing
 
-## Link Dump
+<details>
+<summary>Prerequisites</summary>
 
-* OSM Data parsing
-    * [OSMnx](https://github.com/gboeing/osmnx) to retrieve OSM-data from Overpass API and parso into Geopandas format (but it seems to be focussed on network data)
-    *  [Pyrosm](https://pyrosm.readthedocs.io/en/latest/) to parse OSM-data from `.osm.pbf` formatted files into Geopandas format
-    *  [Geofabrik](http://download.geofabrik.de/) to obtain `.osm.pbf` data for the whole world (roughly 55GB overall) --> can be obtained by Pyrosm's `get_data()
-* Map Transformations
-    * For the beginning use whatever [Geopandas](https://geopandas.org/en/stable/docs.html) provides 
-    * [Geodesic Grid as alternative to square-based representations?](https://en.wikipedia.org/wiki/Geodesic_grid)
-    * [Better square mapping](https://en.wikipedia.org/wiki/Quadrilateralized_spherical_cube)
-    * [Geospatial Indexing Tools Overview](https://github.com/sacridini/Awesome-Geospatial#python=)
-    * [Quadtree](https://en.wikipedia.org/wiki/Quadtree)
-    * [Python Bindings (but: small project)](https://github.com/EL-BID/BabelGrid) for [google s2geometry](http://s2geometry.io/about/overview)
-* Tools
-    * [Tile Map Editor](https://www.mapeditor.org/)
-    * [Overpass Query online interpreter](https://overpass-turbo.eu/)
-* Ressources
-    * [Tuxemon - open source tiles and pokemon](https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/gfx/tilesets)
-    * [Building outlines in Africa](https://sites.research.google/open-buildings/)
-    * [CAD-Files for Building 3D outlines](https://cadmapper.com/) BUT: Not fully open source! Building outlines for large cities can be obtained for free though
-    * [Building 3D geometry generator Buildify for Blender](https://paveloliva.gumroad.com/l/buildify)
-* Polygons, Shapes and Points with x, y Coordinates
-    * [Map polygons to tiles w/ Geopandas and Shapely](https://www.matecdev.com/posts/point-in-polygon.html)
-    * Use [Shapely](https://github.com/shapely/shapely) for general Geometry data stuff (Points, Polygons, Path-Extrusion, ..)
-* Inspiration
-    * [Moonstone Island](https://store.steampowered.com/app/1658150/Moonstone_Island/)
-    * [TemTem](https://store.steampowered.com/app/745920/Temtem/)
-* Procedural generation
-    * [Wave Function Collapse](https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/)
-    * [Perlin Noise](https://spin.atomicobject.com/2015/05/03/infinite-procedurally-generated-world/)
-    
-## Examples (mostly created with chatgpt and unchecked)
+<details>
+<summary>1. Set up Git to use SSH</summary>
 
-* pyrosm download data and extract certain aspects into geodataframe format
-```python
-import pyrosm
+1. [Generate an SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key) and [add the SSH key to your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+1. Configure SSH to automatically load your SSH keys:
+    ```sh
+    cat << EOF >> ~/.ssh/config
+    Host *
+      AddKeysToAgent yes
+      IgnoreUnknown UseKeychain
+      UseKeychain yes
+    EOF
+    ```
 
-# create a Pyrosm object
-pyrosm_data = pyrosm.OSM("data.osm.pbf")
+</details>
 
-# specify the bounding box coordinates
-north, south, east, west = 52.53, 52.5, 13.4, 13.37
+<details>
+<summary>2. Install Docker</summary>
 
-# download the OpenStreetMap data for the bounding box
-pyrosm_data.download_pbf(
-    filepath="data.osm.pbf",
-    north=north, south=south, east=east, west=west
-)
+1. [Install Docker Desktop](https://www.docker.com/get-started).
+    - Enable _Use Docker Compose V2_ in Docker Desktop's preferences window.
+    - _Linux only_:
+        - [Configure Docker to use the BuildKit build system](https://docs.docker.com/build/buildkit/#getting-started). On macOS and Windows, BuildKit is enabled by default in Docker Desktop.
+        - Export your user's user id and group id so that [files created in the Dev Container are owned by your user](https://github.com/moby/moby/issues/3206):
+            ```sh
+            cat << EOF >> ~/.bashrc
+            export UID=$(id --user)
+            export GID=$(id --group)
+            EOF
+            ```
 
-# extract the roads, buildings, water bodies, and green spaces as GeoDataFrames
-roads_gdf = pyrosm_data.get_network(as_gdf=True)
-buildings_gdf = pyrosm_data.get_buildings(as_gdf=True)
-water_gdf = pyrosm_data.get_pois("natural", "water", as_gdf=True)
-green_gdf = pyrosm_data.get_pois("leisure", ["park", "garden"], as_gdf=True)
+</details>
 
-# view the resulting GeoDataFrames
-print(roads_gdf.head())
-print(buildings_gdf.head())
-print(water_gdf.head())
-print(green_gdf.head())
-```
+<details>
+<summary>3. Install VS Code or PyCharm</summary>
 
-* download data with pyrosm and store in PostGIS database
+1. [Install VS Code](https://code.visualstudio.com/) and [VS Code's Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers). Alternatively, install [PyCharm](https://www.jetbrains.com/pycharm/download/).
+2. _Optional:_ install a [Nerd Font](https://www.nerdfonts.com/font-downloads) such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and [configure VS Code](https://github.com/tonsky/FiraCode/wiki/VS-Code-Instructions) or [configure PyCharm](https://github.com/tonsky/FiraCode/wiki/Intellij-products-instructions) to use it.
 
-```python
-import pyrosm
-import psycopg2
+</details>
 
-# Connect to PostGIS database
-conn = psycopg2.connect(database="my_database", user="my_user", password="my_password", host="localhost", port="5432")
+</details>
 
-# Create Pyrosm parser object
-parser = pyrosm.OsmParser()
+<details open>
+<summary>Development environments</summary>
 
-# Download OSM data for a bounding box and write it to the PostGIS database
-bbox = (xmin, ymin, xmax, ymax)
-parser.download_and_parse(bbox, filepath="", db_conn=conn, db_schema="public", db_name="my_database", db_user="my_user", db_password="my_password", db_host="localhost", db_port="5432")
-```
+The following development environments are supported:
 
-* query a postgis database for certain datapoints
-```python
-import psycopg2
-import geopandas as gpd
+1. ⭐️ _GitHub Codespaces_: click on _Code_ and select _Create codespace_ to start a Dev Container with [GitHub Codespaces](https://github.com/features/codespaces).
+1. ⭐️ _Dev Container (with container volume)_: click on [Open in Dev Containers](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/rlipperts.world-parser) to clone this repository in a container volume and create a Dev Container with VS Code.
+1. _Dev Container_: clone this repository, open it with VS Code, and run <kbd>Ctrl/⌘</kbd> + <kbd>⇧</kbd> + <kbd>P</kbd> → _Dev Containers: Reopen in Container_.
+1. _PyCharm_: clone this repository, open it with PyCharm, and [configure Docker Compose as a remote interpreter](https://www.jetbrains.com/help/pycharm/using-docker-compose-as-a-remote-interpreter.html#docker-compose-remote) with the `dev` service.
+1. _Terminal_: clone this repository, open it with your terminal, and run `docker compose up --detach dev` to start a Dev Container in the background, and then run `docker compose exec dev zsh` to open a shell prompt in the Dev Container.
 
-# Connect to PostGIS database
-conn = psycopg2.connect(database="my_database", user="my_user", password="my_password", host="localhost", port="5432")
+</details>
 
-# Define the bounding box of the area to query
-xmin, ymin, xmax, ymax = 8.3719, 51.8963, 8.6752, 52.0902
+<details>
+<summary>Developing</summary>
 
-# Define the OSM tags to query for
-building_tags = ['building']
-road_tags = ['highway']
-tree_tags = ['natural', 'landuse']
-leisure_tags = ['leisure']
-forest_tags = ['landuse', 'natural']
-water_tags = ['water', 'waterway']
+- This project follows the [Conventional Commits](https://www.conventionalcommits.org/) standard to automate [Semantic Versioning](https://semver.org/) and [Keep A Changelog](https://keepachangelog.com/) with [Commitizen](https://github.com/commitizen-tools/commitizen).
+- Run `poe` from within the development environment to print a list of [Poe the Poet](https://github.com/nat-n/poethepoet) tasks available to run on this project.
+- Run `poetry add {package}` from within the development environment to install a run time dependency and add it to `pyproject.toml` and `poetry.lock`. Add `--group test` or `--group dev` to install a CI or development dependency, respectively.
+- Run `poetry update` from within the development environment to upgrade all dependencies to the latest versions allowed by `pyproject.toml`.
+- Run `cz bump` to bump the package's version, update the `CHANGELOG.md`, and create a git tag.
 
-# Define the SQL query for each tag
-building_query = f"SELECT osm_id, way, building FROM planet_osm_polygon WHERE building IN {tuple(building_tags)} AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
-road_query = f"SELECT osm_id, way, highway FROM planet_osm_line WHERE highway IN {tuple(road_tags)} AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
-tree_query = f"SELECT osm_id, way, COALESCE(natural, landuse) AS type FROM planet_osm_polygon WHERE (natural IN {tuple(tree_tags)} OR landuse IN {tuple(tree_tags)}) AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
-leisure_query = f"SELECT osm_id, way, leisure FROM planet_osm_polygon WHERE leisure IN {tuple(leisure_tags)} AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
-forest_query = f"SELECT osm_id, way, COALESCE(natural, landuse) AS type FROM planet_osm_polygon WHERE (natural IN {tuple(forest_tags)} OR landuse IN {tuple(forest_tags)}) AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
-water_query = f"SELECT osm_id, way, COALESCE(water, waterway) AS type FROM planet_osm_polygon WHERE (water IN {tuple(water_tags)} OR waterway IN {tuple(water_tags)}) AND ST_Intersects(way, ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326))"
-
-# Execute the SQL queries and load the results into GeoDataFrames
-buildings_gdf = gpd.read_postgis(building_query, conn, geom_col='way')
-roads_gdf = gpd.read_postgis(road_query, conn, geom_col='way')
-trees_gdf = gpd.read_postgis(tree_query, conn, geom_col='way')
-leisure_gdf = gpd.read_postgis(leisure_query, conn, geom_col='way')
-forests_gdf = gpd.read_postgis(forest_query, conn, geom_col='way')
-water_gdf = gpd.read_postgis(water_query, conn, geom_col='way')
-``
+</details>
