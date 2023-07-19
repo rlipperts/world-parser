@@ -4,7 +4,7 @@
 
 parses world data from different sources and provides an efficient and high-level interface to it
 
-
+![BBOX example with OSMnx](doc/img/bbox_mvp.png)
 
 ## Using
 
