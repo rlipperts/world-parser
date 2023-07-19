@@ -79,3 +79,6 @@ The following development environments are supported:
 - Run `cz bump` to bump the package's version, update the `CHANGELOG.md`, and create a git tag.
 
 </details>
+
+## References
+- [OSMnx and PostGIS](https://james-brennan.github.io/posts/postgis_python/)

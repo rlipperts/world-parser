@@ -20,6 +20,7 @@ version_files = ["pyproject.toml:version"]
 [tool.poetry.dependencies]  # https://python-poetry.org/docs/dependency-specification/
 python = ">=3.11,<4.0"
 sentry-sdk = ">=1.16.0"
+pyrosm = "^0.6.1"
 
 [tool.poetry.group.test.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
 black = ">=23.3.0"
@@ -83,7 +84,7 @@ fix = true
 ignore-init-module-imports = true
 line-length = 100
 select = ["A", "ASYNC", "B", "BLE", "C4", "C90", "D", "DTZ", "E", "EM", "ERA", "F", "FLY", "G", "I", "ICN", "INP", "ISC", "N", "NPY", "PGH", "PIE", "PLC", "PLE", "PLR", "PLW", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "S", "SIM", "SLF", "T10", "T20", "TCH", "TID", "TRY", "UP", "W", "YTT"]
-ignore = ["E501", "PGH001", "RET504", "S101"]
+ignore = ["E501", "PGH001", "RET504", "S101", "D104", "D100"]
 unfixable = ["ERA001", "F401", "F841", "T201", "T203"]
 src = ["src", "tests"]
 target-version = "py311"
