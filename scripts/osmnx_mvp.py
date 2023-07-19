@@ -4,14 +4,19 @@ import osmnx as ox
 
 # define bbox
 # data needs to be in format north, south, west, east
-bielefeld_campus_nord = 52.042408, 52.047661, 8.484921, 8.496294
+bielefeld_campus_north = 52.042408, 52.047661, 8.484921, 8.496294
+bielefeld_campus = 52.031162, 52.047687, 8.479815, 8.506250
 
 # define data filter
 desired_tags = {"landuse": True}
 
-# get data
+# Loading Data from OSM
+# Roughly comparable Overpass API query:
+#   nwr(around:1000,52.039320,8.493118)[landuse];
+#   (._;>;);
+#   out;
 data = ox.features.features_from_bbox(
-    *bielefeld_campus_nord,
+    *bielefeld_campus,
     tags=desired_tags,
 )
 
@@ -49,7 +54,7 @@ color_map = {
     "depot": "#000000",
     "garages": "#deddcc",
     "grass": "#ceecb1",
-    "greenfield": "f1eee8#",
+    "greenfield": "#f1eee8",
     "landfill": "b6b690#",
     "miliraty": "#f3e4de",
     "port": "#000000",
@@ -61,10 +66,11 @@ color_map = {
     "winter_sports": "#000000",
     "user defined": "#000000",
 }
+colors = [color_map.get(x, "#000000") for x in data["landuse"].array]
 
 # build visualization
 fig, axes = plt.subplots()
-data.plot(ax=axes)
+data.plot(color=colors, ax=axes)
 axes.set_title("MVP BBOX Visualization")
 
 # save visualization
