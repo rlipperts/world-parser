@@ -19,6 +19,9 @@
                 "coverage-gutters.coverageFileNames": [
                     "reports/coverage.xml"
                 ],
+                "colorize.languages": [
+                    "python"
+                ],
                 "editor.codeActionsOnSave": {
                     "source.fixAll": true,
                     "source.organizeImports": true
