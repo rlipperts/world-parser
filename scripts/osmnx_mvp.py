@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import json
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import osmnx as ox
 
@@ -8,70 +11,50 @@ bielefeld_campus_north = 52.042408, 52.047661, 8.484921, 8.496294
 bielefeld_campus = 52.031162, 52.047687, 8.479815, 8.506250
 
 # define data filter
-desired_tags = {"landuse": True}
+landuse_tags = {"landuse": True}
+buildings_tags = {"building": True}
 
-# Loading Data from OSM
+# load data from OSM
 # Roughly comparable Overpass API query:
 #   nwr(around:1000,52.039320,8.493118)[landuse];
 #   (._;>;);
 #   out;
-data = ox.features.features_from_bbox(
+landuse_data = ox.features.features_from_bbox(
     *bielefeld_campus,
-    tags=desired_tags,
+    tags=landuse_tags,
+)
+building_data = ox.features.features_from_bbox(
+    *bielefeld_campus,
+    tags=buildings_tags,
+)
+road_data = ox.graph_from_bbox(
+    *bielefeld_campus,
+    network_type="drive",
 )
 
-# color map
-color_map = {
-    # developed land
-    "commercial": "#eecfcf",
-    "construction": "#c7c7b4",
-    "education": "#000000",
-    "fairground": "#000000",
-    "industrial": "#e6d1e3",
-    "residential": "#fecac5",
-    "retail": "#0099ff",
-    "institutional": "#000000",
-    # rural and agricultural
-    "aquaculture": "#000000",
-    "allotments": "#cae2c0",
-    "farmland": "#eff0d6",
-    "farmyard": "#eacca4",
-    "flowerbed": "#000000",
-    "forest": "#9dca8a",
-    "greenhouse_horticulture": "#eff0d6",
-    "meadow": "#ceecb1",
-    "orchard": "#9edc90",
-    "plant_nursery": "#aee0a3",
-    "vineyard": "#9edc90",
-    # waterbody
-    "basin": "#abd4e0",
-    "reservoir": "#abd4e0",
-    "salt_pond": "#abd4e0",
-    # other
-    "brownfield": "#c7c7b4",
-    "cemetery": "#abccb0",
-    "conservation": "#000000",
-    "depot": "#000000",
-    "garages": "#deddcc",
-    "grass": "#ceecb1",
-    "greenfield": "#f1eee8",
-    "landfill": "b6b690#",
-    "miliraty": "#f3e4de",
-    "port": "#000000",
-    "quarry": "#b7b5b5",
-    "railway": "#e6d1e3",
-    "recreation_ground": "#e0fce3",
-    "religious": "#cecdca",
-    "village_green": "#ceecb1",
-    "winter_sports": "#000000",
-    "user defined": "#000000",
-}
-colors = [color_map.get(x, "#000000") for x in data["landuse"].array]
+# prepare colors
+with Path("data/osm_color_map.json").open(encoding="utf8") as color_map_file:
+    data = json.load(color_map_file)
+
+landuse_color_map = data["landuse"]
+landuse_fallback_color = landuse_color_map["default"]
+landuse_colors = [
+    landuse_color_map.get(x, landuse_fallback_color) for x in landuse_data["landuse"].array
+]
+
+building_color_map = data["buildings"]
+building_fallback_color = building_color_map["default"]
+building_colors = [
+    building_color_map.get(x, building_fallback_color) for x in building_data["building"].array
+]
+
 
 # build visualization
 fig, axes = plt.subplots()
-data.plot(color=colors, ax=axes)
-axes.set_title("MVP BBOX Visualization")
+axes.axis("off")
+landuse_data.plot(color=landuse_colors, ax=axes)
+building_data.plot(color=building_colors, ax=axes)
+ox.plot_graph(road_data, axes, edge_color="#666666", node_color="#666666", node_size=0.5)
 
 # save visualization
-fig.savefig("out/bbox_mvp.png")
+fig.savefig("out/bbox_mvp.png", dpi=300, bbox_inches="tight")
