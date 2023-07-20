@@ -15,10 +15,6 @@ landuse_tags = {"landuse": True}
 buildings_tags = {"building": True}
 
 # load data from OSM
-# Roughly comparable Overpass API query:
-#   nwr(around:1000,52.039320,8.493118)[landuse];
-#   (._;>;);
-#   out;
 landuse_data = ox.features.features_from_bbox(
     *bielefeld_campus,
     tags=landuse_tags,
@@ -31,6 +27,11 @@ road_data = ox.graph_from_bbox(
     *bielefeld_campus,
     network_type="drive",
 )
+# add missing data
+# https://wiki.openstreetmap.org/wiki/Key:amenity
+# https://wiki.openstreetmap.org/wiki/Key:leisure
+# https://wiki.openstreetmap.org/wiki/Key:waterway --> as a graph like highways?
+# https://wiki.openstreetmap.org/wiki/Key:natural
 
 # prepare colors
 with Path("data/osm_color_map.json").open(encoding="utf8") as color_map_file:
