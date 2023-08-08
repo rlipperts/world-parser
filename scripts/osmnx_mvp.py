@@ -13,6 +13,8 @@ bielefeld_campus = 52.031162, 52.047687, 8.479815, 8.506250
 # define data filter
 landuse_tags = {"landuse": True}
 buildings_tags = {"building": True}
+waterway_tags = {"waterway": True}
+natural_tags = {"natural": True}
 
 # load data from OSM
 landuse_data = ox.features.features_from_bbox(
@@ -23,6 +25,14 @@ building_data = ox.features.features_from_bbox(
     *bielefeld_campus,
     tags=buildings_tags,
 )
+natural_data = ox.features.features_from_bbox(
+    *bielefeld_campus,
+    tags=natural_tags,
+)
+waterway_data = ox.graph_from_bbox(
+    *bielefeld_campus,
+    custom_filter='["waterway"]',
+)
 road_data = ox.graph_from_bbox(
     *bielefeld_campus,
     network_type="drive",
@@ -30,8 +40,6 @@ road_data = ox.graph_from_bbox(
 # add missing data
 # https://wiki.openstreetmap.org/wiki/Key:amenity
 # https://wiki.openstreetmap.org/wiki/Key:leisure
-# https://wiki.openstreetmap.org/wiki/Key:waterway --> as a graph like highways?
-# https://wiki.openstreetmap.org/wiki/Key:natural
 
 # prepare colors
 with Path("data/osm_color_map.json").open(encoding="utf8") as color_map_file:
@@ -49,12 +57,20 @@ building_colors = [
     building_color_map.get(x, building_fallback_color) for x in building_data["building"].array
 ]
 
+natural_color_map = data["natural"]
+natural_fallback_color = natural_color_map["default"]
+natural_colors = [
+    natural_color_map.get(x, natural_fallback_color) for x in natural_data["natural"].array
+]
+
 
 # build visualization
 fig, axes = plt.subplots()
 axes.axis("off")
 landuse_data.plot(color=landuse_colors, ax=axes)
 building_data.plot(color=building_colors, ax=axes)
+natural_data.plot(color=natural_colors, ax=axes, markersize=0.3)
+ox.plot_graph(waterway_data, axes, edge_color="#aad3df", node_color="#aad3df", node_size=0.5)
 ox.plot_graph(road_data, axes, edge_color="#666666", node_color="#666666", node_size=0.5)
 
 # save visualization
